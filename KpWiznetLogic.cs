@@ -300,19 +300,47 @@ namespace Scada.Comm.Devices
             //build the command to read INPUTS
             if (wiznetGpioCfg.GetGpioModeString(wiznetGpioCfg.GpioA).Equals("INPUT"))
             {
-                command.Append("GA\r\n");
+                if (wiznetGpioCfg.GetGpioDigModeString(wiznetGpioCfg.GpioA).Equals("NORMAL"))
+                {
+                    command.Append("GA\r\n");
+                }
+                else if (wiznetGpioCfg.GetGpioDigModeString(wiznetGpioCfg.GpioA).Equals("PULSE"))
+                {
+                    command.Append("TA\r\n");
+                }
             }
             if (wiznetGpioCfg.GetGpioModeString(wiznetGpioCfg.GpioB).Equals("INPUT"))
             {
-                command.Append("GB\r\n");
+                if (wiznetGpioCfg.GetGpioDigModeString(wiznetGpioCfg.GpioB).Equals("NORMAL"))
+                {
+                    command.Append("GB\r\n");
+                }
+                else if (wiznetGpioCfg.GetGpioDigModeString(wiznetGpioCfg.GpioB).Equals("PULSE"))
+                {
+                    command.Append("TB\r\n");
+                }
             }
             if (wiznetGpioCfg.GetGpioModeString(wiznetGpioCfg.GpioC).Equals("INPUT"))
             {
-                command.Append("GC\r\n");
+                if (wiznetGpioCfg.GetGpioDigModeString(wiznetGpioCfg.GpioC).Equals("NORMAL"))
+                {
+                    command.Append("GC\r\n");
+                }
+                else if (wiznetGpioCfg.GetGpioDigModeString(wiznetGpioCfg.GpioC).Equals("PULSE"))
+                {
+                    command.Append("TC\r\n");
+                }
             }
             if (wiznetGpioCfg.GetGpioModeString(wiznetGpioCfg.GpioD).Equals("INPUT"))
             {
-                command.Append("GD\r\n");
+                if (wiznetGpioCfg.GetGpioDigModeString(wiznetGpioCfg.GpioD).Equals("NORMAL"))
+                {
+                    command.Append("GD\r\n");
+                }
+                else if (wiznetGpioCfg.GetGpioDigModeString(wiznetGpioCfg.GpioD).Equals("PULSE"))
+                {
+                    command.Append("TD\r\n");
+                }
             }
             if (command.ToString().Equals(System.String.Empty))
             {
@@ -389,7 +417,7 @@ namespace Scada.Comm.Devices
 
             string logText;
             // BaudRate Query Command
-            string command = "CA\r\nCB\r\nCC\r\nCD\r\nGA\r\nGB\r\nGC\r\nGD\r\n";
+            string command = "CA\r\nCB\r\nCC\r\nCD\r\nTA\r\nGB\r\nGC\r\nGD\r\nNA\r\nNB\r\nNC\r\nND\r\n";
             byte[] cmd_hex = { 0x4d, 0x41, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x0d, 0x0a, 0x50, 0x57, 0x20, 0x0d, 0x0a };
             byte[] cmdBytes = Encoding.ASCII.GetBytes(command);
             int final_len = cmd_hex.Length + cmdBytes.Length;

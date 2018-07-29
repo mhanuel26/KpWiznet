@@ -12,11 +12,13 @@ namespace Scada.Comm.Devices
         public bool change;
         public string Mode;
         public decimal Value;
+        public string DigMode;
 
-        public GpioClass(string mode, int value)
+        public GpioClass(string mode, int value, string digmode)
         {
             this.Mode = mode;
             this.Value = value;
+            this.DigMode = digmode;
             this.change = false;
         }
     }
@@ -30,6 +32,7 @@ namespace Scada.Comm.Devices
 
         static readonly object _fileAccess = new object();
         private List<(int, string)> GpioMode;
+        private List<(int, string)> GpioDigMode;
         public GpioClass GpioA;
         public GpioClass GpioB;
         public GpioClass GpioC;
@@ -44,10 +47,15 @@ namespace Scada.Comm.Devices
                 (0, "INPUT"),
                 (1, "OUTPUT")
             };
-            GpioA = new GpioClass("INPUT", 0);
-            GpioB = new GpioClass("INPUT", 0);
-            GpioC = new GpioClass("INPUT", 0);
-            GpioD = new GpioClass("INPUT", 0);
+            GpioDigMode = new List<(int, string)>
+            {
+                (0, "NORMAL"),
+                (1, "PULSE")
+            };
+            GpioA = new GpioClass("INPUT", 0, "NORMAL");
+            GpioB = new GpioClass("INPUT", 0, "NORMAL");
+            GpioC = new GpioClass("INPUT", 0, "NORMAL");
+            GpioD = new GpioClass("INPUT", 0, "NORMAL");
             Modify = false;
         }
 
@@ -82,6 +90,37 @@ namespace Scada.Comm.Devices
         }
 
         /// <summary>
+        /// Get GPIO Digital Mode
+        /// </summary>
+        public int GetGpioDigMode(GpioClass gpio)
+        {
+            for (int i = 0; i < GpioDigMode.Count; i++)
+            {
+                if (GpioDigMode[i].Item2.Equals(gpio.DigMode))
+                    return (GpioDigMode[i].Item1);
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// Get GPIO Digital Mode
+        /// </summary>
+        public string GetGpioDigModeString(GpioClass gpio)
+        {
+            string mode = System.String.Empty;
+            for (int i = 0; i < GpioDigMode.Count; i++)
+            {
+                if (GpioDigMode[i].Item2.Equals(gpio.DigMode))
+                {
+                    mode = GpioDigMode[i].Item2;
+                    break;
+                }
+            }
+            return mode;
+        }
+
+
+        /// <summary>
         /// Get GPIO Value
         /// </summary>
         public int GetGpioValue(GpioClass gpio)
@@ -96,6 +135,14 @@ namespace Scada.Comm.Devices
         private void SetGpioMode(GpioClass gpio, int mode)
         {
             gpio.Mode = GpioMode[mode].Item2;
+        }
+
+        /// <summary>
+        /// Set GPIO Mode
+        /// </summary>
+        private void SetGpioDigMode(GpioClass gpio, int mode)
+        {
+            gpio.DigMode = GpioDigMode[mode].Item2;
         }
 
         /// <summary>
@@ -169,6 +216,57 @@ namespace Scada.Comm.Devices
                 SetGpioValue(GpioD, val);
                 success = true;
             }
+            // following the new commands for Digital Inputs mode
+            else if (cmd.Contains("NA"))
+            {
+                int val = Int32.Parse(cmd.Substring(2));
+                SetGpioDigMode(GpioA, val);
+                success = true;
+            }
+            else if (cmd.Contains("NB"))
+            {
+                int val = Int32.Parse(cmd.Substring(2));
+                SetGpioDigMode(GpioB, val);
+                success = true;
+            }
+            else if (cmd.Contains("NC"))
+            {
+                int val = Int32.Parse(cmd.Substring(2));
+                SetGpioDigMode(GpioC, val);
+                success = true;
+            }
+            else if (cmd.Contains("ND"))
+            {
+                int val = Int32.Parse(cmd.Substring(2));
+                SetGpioDigMode(GpioD, val);
+                success = true;
+            }
+            else if (cmd.Contains("TA"))
+            {
+                int val = Int32.Parse(cmd.Substring(2));
+                SetGpioValue(GpioA, val);
+                success = true;
+            }
+            else if (cmd.Contains("TB"))
+            {
+                int val = Int32.Parse(cmd.Substring(2));
+                SetGpioValue(GpioB, val);
+                success = true;
+            }
+            else if (cmd.Contains("TC"))
+            {
+                int val = Int32.Parse(cmd.Substring(2));
+                SetGpioValue(GpioC, val);
+                success = true;
+            }
+            else if (cmd.Contains("TD"))
+            {
+                int val = Int32.Parse(cmd.Substring(2));
+                SetGpioValue(GpioD, val);
+                success = true;
+            }
+
+
             //sw.Close();
             return success;
         }
@@ -177,7 +275,7 @@ namespace Scada.Comm.Devices
             /// Download configuration from file
             /// </summary>
 
-            public bool Load(string fileName, out string errMsg)
+        public bool Load(string fileName, out string errMsg)
         {
             SetToDefault();
 
@@ -199,6 +297,11 @@ namespace Scada.Comm.Devices
                 GpioB.Value = rootElem.GetChildAsInt("GpioBvalue");
                 GpioC.Value = rootElem.GetChildAsInt("GpioCvalue");
                 GpioD.Value = rootElem.GetChildAsInt("GpioDvalue");
+
+                GpioA.DigMode = rootElem.GetChildAsString("GpioAdigMode");
+                GpioB.DigMode = rootElem.GetChildAsString("GpioBdigMode");
+                GpioC.DigMode = rootElem.GetChildAsString("GpioCdigMode");
+                GpioD.DigMode = rootElem.GetChildAsString("GpioDdigMode");
 
                 GpioA.change = rootElem.GetChildAsBool("GpioAchange");
                 GpioB.change = rootElem.GetChildAsBool("GpioBchange");
@@ -241,6 +344,11 @@ namespace Scada.Comm.Devices
                 rootElem.AppendElem("GpioBvalue", GpioB.Value);
                 rootElem.AppendElem("GpioCvalue", GpioC.Value);
                 rootElem.AppendElem("GpioDvalue", GpioD.Value);
+
+                rootElem.AppendElem("GpioAdigMode", GpioA.DigMode);
+                rootElem.AppendElem("GpioBdigMode", GpioB.DigMode);
+                rootElem.AppendElem("GpioCdigMode", GpioC.DigMode);
+                rootElem.AppendElem("GpioDdigMode", GpioD.DigMode);
 
                 rootElem.AppendElem("GpioAchange", GpioA.change);
                 rootElem.AppendElem("GpioBchange", GpioB.change);

@@ -67,25 +67,45 @@ namespace Scada.Comm.Devices
                     new Dictionary<int, object>() { { 0, "OUTPUT" }, { 1, "INPUT" } });
             if (CurrentGpioAmode.Equals("INPUT"))
             {
+                cb_pulse_en_A.Enabled = true;
                 gpioAval.Value = config.GpioA.Value;
+            }
+            else
+            {
+                cb_pulse_en_A.Enabled = false;
             }
             string CurrentGpioBmode = (string)gpioBmode.GetSelectedItem(
                     new Dictionary<int, object>() { { 0, "OUTPUT" }, { 1, "INPUT" } });
             if (CurrentGpioBmode.Equals("INPUT"))
             {
+                cb_pulse_en_B.Enabled = true;
                 gpioBval.Value = config.GpioB.Value;
+            }
+            else
+            {
+                cb_pulse_en_B.Enabled = false;
             }
             string CurrentGpioCmode = (string)gpioCmode.GetSelectedItem(
                 new Dictionary<int, object>() { { 0, "OUTPUT" }, { 1, "INPUT" } });
             if (CurrentGpioCmode.Equals("INPUT"))
             {
+                cb_pulse_en_C.Enabled = true;
                 gpioCval.Value = config.GpioC.Value;
+            }
+            else
+            {
+                cb_pulse_en_C.Enabled = false;
             }
             string CurrentGpioDmode = (string)gpioDmode.GetSelectedItem(
                     new Dictionary<int, object>() { { 0, "OUTPUT" }, { 1, "INPUT" } });
             if (CurrentGpioDmode.Equals("INPUT"))
             {
+                cb_pulse_en_D.Enabled = true;
                 gpioDval.Value = config.GpioD.Value;
+            }
+            else
+            {
+                cb_pulse_en_D.Enabled = false;
             }
         }
 
@@ -108,6 +128,11 @@ namespace Scada.Comm.Devices
             gpioBval.Enabled = config.GpioB.Mode.Equals("INPUT") ? false : true;
             gpioCval.Enabled = config.GpioC.Mode.Equals("INPUT") ? false : true;
             gpioDval.Enabled = config.GpioD.Mode.Equals("INPUT") ? false : true;
+
+            cb_pulse_en_A.Checked = config.GpioA.DigMode.Equals("NORMAL") ? false : true;
+            cb_pulse_en_B.Checked = config.GpioB.DigMode.Equals("NORMAL") ? false : true;
+            cb_pulse_en_C.Checked = config.GpioC.DigMode.Equals("NORMAL") ? false : true;
+            cb_pulse_en_D.Checked = config.GpioD.DigMode.Equals("NORMAL") ? false : true;
         }
 
         /// <summary>
@@ -184,6 +209,35 @@ namespace Scada.Comm.Devices
                     config.GpioD.change = true;
                     config.Modify = true;
                 }
+            }
+            // check if digital input mode has change
+            string NewGpioAdigMode = cb_pulse_en_A.Checked ? "PULSE" : "NORMAL";
+            string NewGpioBdigMode = cb_pulse_en_B.Checked ? "PULSE" : "NORMAL";
+            string NewGpioCdigMode = cb_pulse_en_C.Checked ? "PULSE" : "NORMAL";
+            string NewGpioDdigMode = cb_pulse_en_D.Checked ? "PULSE" : "NORMAL";
+            if (!config.GpioA.DigMode.Equals(NewGpioAdigMode))
+            {
+                config.GpioA.DigMode = NewGpioAdigMode;
+                config.GpioA.change = true;
+                config.Modify = true;
+            }
+            if (!config.GpioB.DigMode.Equals(NewGpioBdigMode))
+            {
+                config.GpioB.DigMode = NewGpioBdigMode;
+                config.GpioB.change = true;
+                config.Modify = true;
+            }
+            if (!config.GpioC.DigMode.Equals(NewGpioCdigMode))
+            {
+                config.GpioC.DigMode = NewGpioCdigMode;
+                config.GpioC.change = true;
+                config.Modify = true;
+            }
+            if (!config.GpioD.DigMode.Equals(NewGpioDdigMode))
+            {
+                config.GpioD.DigMode = NewGpioDdigMode;
+                config.GpioD.change = true;
+                config.Modify = true;
             }
         }
 
